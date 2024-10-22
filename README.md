@@ -1,0 +1,2 @@
+# go-updater
+This package provides a simple way for a program to update itself with an file to download or another file on the FS. This is intended to be used to provide self-updating features within a program.
