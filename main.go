@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"os/exec"
-	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -19,23 +17,11 @@ func debugPrintln(a ...interface{}) {
 	if !DebugOutput {
 		return
 	}
-	debugPrintln(a...)
+	fmt.Println(a...)
 }
 
 // DelayTime is the amount of time to delay before deleting the original file and moving the new file into the original file's location.
 var DelayTime = uint(2)
-
-func runAfter(target string, seconds uint) error {
-	debugPrintln("Running", target, "in", seconds, "seconds...")
-	if runtime.GOOS == "windows" {
-		cmd := exec.Command("cmd", "/C", fmt.Sprintf("timeout /t %d && del %s.old && %s", seconds, target, target))
-		return cmd.Start()
-	} else {
-		cmd := exec.Command("sh", "-c", fmt.Sprintf("sleep %d && rm %s.old && %s", seconds, target, target))
-		cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-		return cmd.Start()
-	}
-}
 
 // Update replaces target with source and an optional PID to kill. If source begins with http, it is downloaded to a temp folder and the created file is used as the source.
 func Update(source string, target string, pid string) error {
@@ -112,6 +98,7 @@ func Update(source string, target string, pid string) error {
 		}
 	}
 
+	debugPrintln("Running", target, "in", DelayTime, "seconds...")
 	if err := runAfter(target, DelayTime); err != nil {
 		debugPrintln(err)
 	} else {
